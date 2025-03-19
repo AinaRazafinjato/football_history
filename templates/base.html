@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Meta Tags Essentiels -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Titre Dynamique -->
+    <title>{% block title %}Mon Site de Matches{% endblock %}</title>
+    
+    <!-- Bootstrap CSS Local -->
+    <link rel="stylesheet" href="{% static 'vendors/bootstrap/css/bootstrap.min.css' %}">
+    
+    <!-- CSS Personnalisé -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+
+    <!-- Ajouter des Font Awesome via CDN et des polices Google Fonts-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header (Navbar) -->
+    {% include 'partials/navbar.html' %}
+
+    <!-- Contenu Principal -->
+    <main class="container mt-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% include 'partials/footer.html' %}
+
+    <!-- Scripts Bootstrap -->
+    <script src="{% static 'vendors/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

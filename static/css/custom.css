@@ -1,0 +1,141 @@
+:root {
+    /* Nouvelle palette professionnelle */
+    --primary-color: #1a2a4f;       /* Bleu marine profond */
+    --secondary-color: #ff6b35;     /* Orange vif (énergie) */
+    --accent-color: #00a8e8;        /* Bleu clair (fraîcheur) */
+    --dark-bg: #0a192f;             /* Fond sombre élégant */
+    --light-text: #f4f4f4;          /* Texte clair */
+    
+    /* Ajouts typographie */
+    --font-heading: 'Roboto Condensed', sans-serif;
+    --font-body: 'Open Sans', sans-serif;
+}
+
+/* Application des polices */
+body {
+    font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+    font-family: var(--font-heading);
+    letter-spacing: 0.05em;
+}
+
+
+/* custom.css */
+.card {
+    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-header {
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--dark-bg) 100%);
+    border-bottom: 2px solid var(--secondary-color);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.display-6 {
+    color: var(--accent-color);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* custom.css */
+/* Effet Hover Personnalisé */
+.hover-accent {
+    transition: color 0.3s ease;
+}
+
+.hover-accent:hover {
+    color: var(--accent-color) !important;
+}
+
+/* Boutons */
+.btn-accent {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.btn-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+}
+
+/* Formulaire */
+.bg-transparent:focus {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 0.25rem rgba(0, 168, 232, 0.25);
+}
+
+/* Personnalisation de l'input */
+.bg-dark-20 {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border: 2px solid var(--accent-color) !important;
+}
+
+.bg-dark-20::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.bg-dark-20:focus {
+    background: rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 0 0 0.25rem rgba(0, 168, 232, 0.25);
+    border-color: var(--accent-color) !important;
+}
+
+/* Animation de l'icône au focus */
+.bg-dark-20:focus + .fa-search {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Nouvelles classes de texte */
+.text-light-60 {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.text-light-70 {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Bordures personnalisées */
+.border-accent-20 {
+    border-color: rgba(0, 168, 232, 0.2) !important;
+}
+
+/* Effet de survol pour le texte */
+.text-light-60:hover {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Animation des boutons de navigation */
+.btn-accent {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+}
+
+/* Adaptation responsive */
+@media (max-width: 768px) {
+    .card-header h4 {
+        font-size: 1.25rem;
+    }
+}
+

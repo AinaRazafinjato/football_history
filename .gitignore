@@ -1,0 +1,17 @@
+# Fichiers Python
+*.pyc
+__pycache__/
+
+# Environnement virtuel
+.env/
+
+# Configuration locale Django
+*.sqlite3
+.env
+
+# Logs et cache
+logs/
+*.log
+
+# Les fichier bootstrap
+bootstrap/

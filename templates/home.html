@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<h1 class="display-5 mb-4">{{ page_title }}</h1>
+
+{% if current_week %}
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+            Semaine du {{ current_week.start|date:"d/m/Y" }} au {{ current_week.end|date:"d/m/Y" }}
+        </h4>
+    </div>
+
+    <div class="card-body">
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for match in current_week.matches %}
+            <div class="col">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-secondary text-white">
+                        {{ match.match_date|date:"l d/m/Y"|capfirst }} • {{ match.venue }}
+                    </div>
+                    <div class="card-body">
+                        <!-- Contenu existant des matches -->
+                        <div class="d-flex justify-content-around align-items-center">
+                            <!-- Équipe domicile -->
+                            <div class="text-center">
+                                <h5>{{ match.team_home }}</h5>
+                                <span class="display-6">
+                                    {% if match.score_home is None %} <!-- Vérifie explicitement None -->
+                                    -
+                                    {% else %}
+                                    {{ match.score_home }}
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <!-- VS -->
+                            <div class="text-muted">VS</div>
+
+                            <!-- Équipe extérieure -->
+                            <div class="text-center">
+                                <h5>{{ match.team_away }}</h5>
+                                <span class="display-6">
+                                    {% if match.score_away is None %}
+                                    -
+                                    {% else %}
+                                    {{ match.score_away }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- AJOUTEZ ICI LE NOM DE LA LIGUE -->
+                        <div class="row mt-3">
+                            <div class="col text-center text-muted small">
+                                <i class="fas fa-trophy"></i> <!-- Icône optionnelle -->
+                                {{ match.league }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col">
+                <div class="alert alert-warning">Aucun match cette semaine</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Navigation entre semaines -->
+<div class="d-flex justify-content-between mb-5">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-accent">
+        <i class="fas fa-arrow-left me-2"></i>
+        Semaine précédente
+    </a>
+    {% endif %}
+
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-accent ms-auto">
+        Semaine suivante
+        <i class="fas fa-arrow-right ms-2"></i>
+    </a>
+    {% endif %}
+</div>
+
+{% else %}
+<div class="alert alert-info">Aucun match à afficher</div>
+{% endif %}
+{% endblock %}
