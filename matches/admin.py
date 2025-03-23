@@ -1,20 +1,10 @@
 from django.contrib import admin
 from .models import Match, MatchDay, Team, League, Season
 
-# ---------- SUPERUSER ------------- #
-# Username: Parlss29
-# Email address: aina.raazfinjato29@gmail.com
-# Password: KaiHavertz29
-# Password (again): KaiHavertz29
-# ---------------------------------- #
-
-# Register your models here.
-
-
 # Administration des matchs
 @admin.register(Match)
 class MatchAdmin(admin.ModelAdmin):
-    list_display = ("day","league","match_date","team_home","score_home","score_away","team_away","venue")
+    list_display = ("day","league","match_date","team_home","score_home","score_away","team_away","venue", "referee")
     list_filter = ("day__season", "league", "match_date")  # Filtrage par saison/ligue
     autocomplete_fields = ["team_home", "team_away"]  # Recherche rapide pour Team
     raw_id_fields = ["day"]  # Utile si beaucoup de journées
@@ -47,8 +37,8 @@ class MatchDayAdmin(admin.ModelAdmin):
 # Administration des Teams
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    search_fields = ["team_name"]  # Activation de la recherche
-    list_display = ["team_name"]
+    search_fields = ["team_name", "short_name"]
+    list_display = ["team_name", "short_name"]
 
 
 # Administration des Leagues

@@ -1,0 +1,22 @@
+TEAM_MAPPING = {
+    "ARS": "Arsenal",
+    "AST": "Aston Villa",
+    "BOU": "Bournemouth",
+    "BRE": "Brentford",
+    "BHA": "Brighton",
+    "BUR": "Burnley",
+    "CHE": "Chelsea",
+    "CPA": "Crystal Palace",
+    "EVE": "Everton",
+    "FUL": "Fulham",
+    "LIV": "Liverpool",
+    "LUT": "Luton Town",
+    "MCI": "Manchester City",
+    "MUN": "Manchester Utd",
+    "NEW": "Newcastle Utd",
+    "NFO": "Nott'ham Forest",
+    "SHE": "Sheffield Utd",
+    "TOT": "Tottenham",
+    "WHU": "West Ham",
+    "WO": "Wolves"
+}
