@@ -1,11 +1,11 @@
-from datetime import timedelta
+from datetime import timedelta, date
 from django.shortcuts import render
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .models import Match
 
 def home(request):
-    # Récupération de tous les matches triés par date décroissante
-    all_matches = Match.objects.all().order_by('-match_date')
+    # Récupération de tous les matches triés par date croissante
+    all_matches = Match.objects.all().order_by('match_date')
     
     # Calcul des semaines
     weeks_dict = {}
@@ -17,18 +17,30 @@ def home(request):
             weeks_dict[week_start] = []
         weeks_dict[week_start].append(match)
     
-    # Tri des semaines par date décroissante
-    weeks = sorted(weeks_dict.items(), key=lambda x: x[0], reverse=True)
-    
+    # Tri des semaines par date croissante
+    weeks = sorted(weeks_dict.items(), key=lambda x: x[0])
+
     # Pagination (1 semaine par page)
     paginator = Paginator(weeks, 1)
-    page_number = request.GET.get('page', 1)
+    
+    # Trouver la semaine correspondant à aujourd'hui
+    today = date.today()
+    today_week_start = today - timedelta(days=today.weekday())
+    page_number = 1  # Par défaut, aller à la première page
+
+    # Chercher l'index de la semaine en cours
+    for i, (week_start, _) in enumerate(weeks):
+        if week_start == today_week_start:
+            page_number = i + 1  # Les pages commencent à 1 dans Django
+    
+    # Récupérer la page demandée ou celle de la semaine actuelle
+    requested_page = request.GET.get('page', page_number)
     
     try:
-        page_obj = paginator.page(page_number)
+        page_obj = paginator.page(requested_page)
     except (PageNotAnInteger, EmptyPage):
         page_obj = paginator.page(1)
-    
+
     # Formatage des données pour le template
     current_week = None
     if page_obj.object_list:
@@ -37,7 +49,7 @@ def home(request):
         current_week = {
             'start': week_start,
             'end': week_end,
-            'matches': sorted(matches, key=lambda m: m.match_date, reverse=True)
+            'matches': sorted(matches, key=lambda m: m.match_date)
         }
     
     context = {

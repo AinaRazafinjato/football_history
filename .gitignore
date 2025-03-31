@@ -5,8 +5,8 @@ __pycache__/
 # Environnement virtuel
 .env/
 
-# Le dossier qui contient les fichiers csv
-csv/
+# Tout les fichiers csv dans le dossier csv/ 
+*.csv
 
 # Configuration locale Django
 *.sqlite3
