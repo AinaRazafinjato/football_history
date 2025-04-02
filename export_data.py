@@ -1,49 +1,35 @@
 import pandas as pd
 from pathlib import Path
 
-
-def fetch_table_from_url(url):
-    """
-    Fetches the first table from the given URL using pandas.
-
-    Args:
-        url (str): The URL of the FBref page.
-
-    Returns:
-        pd.DataFrame: The first table from the URL.
-    """
-    try:
-        tables = pd.read_html(url)
-        return tables[0]
-    except Exception as e:
-        raise ValueError(f"Error fetching table from URL: {e}")
-
-
-
-def fetch_table_from_url(url):
-    """
-    Fetches the first table from the given URL using pandas.
-
-    Args:
-        url (str): The URL of the FBref page.
-
-    Returns:
-        pd.DataFrame: The first table from the URL.
-    """
-    try:
-        tables = pd.read_html(url)
-        return tables[0]
-    except Exception as e:
-        raise ValueError(f"Error fetching table from URL: {e}")
-
-import pandas as pd
-
 # Constants
 ROWS_TO_DROP = ['Date', 'Home', 'Away', 'Venue']
 COLUMNS_TO_DROP = ['Day', 'Time', 'xG', 'xG.1', 'Match Report', 'Notes']
 REQUIRED_COLUMNS = ['Score', 'Wk', 'Attendance']
 COLS_TO_CONVERT = ['Wk', 'Score_Home', 'Score_Away', 'Attendance']
 COLS_ORDER = ['Wk', 'Date', 'Home', 'Score_Home', 'Score_Away', 'Away', 'Venue', 'Attendance', 'Referee']
+
+# Define base directory and CSV directory
+BASE_DIR = Path(__file__).parent
+CSV_DIR = BASE_DIR / "csv"
+CSV_DIR.mkdir(exist_ok=True, mode=0o755)
+
+
+def fetch_table_from_url(url):
+    """
+    Fetches the first table from the given URL using pandas.
+
+    Args:
+        url (str): The URL of the FBref page.
+
+    Returns:
+        pd.DataFrame: The first table from the URL.
+    """
+    try:
+        tables = pd.read_html(url)
+        return tables[0]
+    except Exception as e:
+        raise ValueError(f"Error fetching table from URL: {e}")
+
 
 def clean_and_transform_data(df):
     """
@@ -97,41 +83,31 @@ def clean_and_transform_data(df):
 
 def generate_csv_filename(url, df):
     """
-    Generates a CSV filename based on the URL and season extracted from the DataFrame.
-
-    Args:
-        url (str): The URL of the FBref page.
-        df (pd.DataFrame): The cleaned DataFrame containing the 'Date' column.
-
-    Returns:
-        str: The generated CSV filename.
+    Génère un nom de fichier CSV basé sur l'URL et la saison extraite du DataFrame.
     """
-    try:
-        # Ensure 'Date' column is in datetime format
-        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-        
-        # Extract start and end years from the 'Date' column
-        start_year = df['Date'].min().year
-        end_year = df['Date'].max().year
-        season = f"{start_year}-{end_year}"
-        
-        last_part_url = url.split('/')[-1]
-        elements = last_part_url.split('-')
-        try:
-            int(elements[0])  # Check if the first element is numeric
-            league_name = elements[2:4]
-        except ValueError:
-            league_name = elements[:2]
 
-        league_name = f"{league_name[0]}-{league_name[1]}"
-        return f"{league_name}-{season}.csv"
-    except IndexError:
-        raise ValueError("Invalid URL format for extracting season and league names.")
+    # Convertir la colonne 'Date' en datetime
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+    if df['Date'].dropna().empty:
+        raise ValueError("Aucune date valide trouvée dans le DataFrame.")
+    
+    # Extraire l'année de début et l'année de fin
+    start_year = df['Date'].min().year
+    end_year = df['Date'].max().year
+    season = f"{start_year}-{end_year}"
+    
+    # Extraire le nom de la ligue en excluant certains mots
+    def extract_league_name(url):
+        last_part = url.split('/')[-1]
+        elements = last_part.split('-')
+        exclude = {"Scores", "and", "Fixtures"}
+        league_parts = [el for el in elements if el not in exclude]
+        return "-".join(league_parts)
+    
+    league_name = extract_league_name(url)
+    
+    return f"{league_name}-{season}.csv"
 
-# Define base directory and CSV directory
-BASE_DIR = Path(__file__).parent
-CSV_DIR = BASE_DIR / "csv"
-CSV_DIR.mkdir(exist_ok=True, mode=0o755)
 
 def save_to_csv(df, filename):
     """

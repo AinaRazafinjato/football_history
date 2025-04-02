@@ -6,17 +6,17 @@ TEAM_MAPPING = {
     "BHA": "Brighton",
     "BUR": "Burnley",
     "CHE": "Chelsea",
-    "CPA": "Crystal Palace",
+    "CRY": "Crystal Palace",
     "EVE": "Everton",
     "FUL": "Fulham",
     "LIV": "Liverpool",
     "LUT": "Luton Town",
     "MCI": "Manchester City",
-    "MUN": "Manchester Utd",
-    "NEW": "Newcastle Utd",
-    "NFO": "Nott'ham Forest",
-    "SHE": "Sheffield Utd",
+    "MUN": "Manchester United",
+    "NEW": "Newcastle United",
+    "NOT": "Nottingham Forest",
+    "SHE": "Sheffield United",
     "TOT": "Tottenham",
     "WHU": "West Ham",
-    "WO": "Wolves"
+    "WOL": "Wolverhampton"
 }

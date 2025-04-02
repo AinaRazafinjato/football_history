@@ -42,7 +42,25 @@ Ce projet permet d'extraire des données de matchs depuis **FBref**, de les expo
 
 Ce projet utilise **Bootstrap** pour styliser l'interface de l'application. Pour que tous les développeurs aient accès aux mêmes styles et fonctionnalités, deux options s'offrent à vous :
 
-### **1. Via CDN (recommandé)**
+### **1. Fichiers locaux**
+
+**Télécharger la version compilée (Compiled CSS and JS)**  
+
+Rendez-vous sur la page officielle de téléchargement de Bootstrap :  [Télécharger Bootstrap](https://getbootstrap.com/docs/5.3/getting-started/download/)  
+Cliquez sur le bouton "Compiled CSS and JS" pour télécharger le fichier `dist`.
+
+Décompressez l'archive et placez les dossiers **css** et **js** issus du dossier `dist` dans le répertoire `static/vendors/bootstrap/` de votre projet.
+
+Dans vos templates HTML, modifiez les liens pour pointer vers ces fichiers :
+
+```html
+<link rel="stylesheet" href="{% static 'vendors/bootstrap/css/bootstrap.min.css' %}">
+<script src="{% static 'vendors/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+```
+
+Assurez-vous que la configuration des fichiers statiques de Django est correctement effectuée.
+
+### **2. Via CDN (recommandé)**
 
 L'utilisation d'un CDN permet de charger Bootstrap directement depuis Internet. Ajoutez simplement les liens suivants dans la balise `<head>` de vos templates HTML :
 
@@ -56,17 +74,6 @@ integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxV
 
 > **Avantage :**  
 > Vous n'avez pas besoin de gérer les fichiers localement, ce qui garantit que tout le monde utilise la même version de Bootstrap.
-
-### **2. Fichiers locaux**
-
-Si vous préférez utiliser des fichiers locaux, téléchargez Bootstrap et placez les dossiers **css** et **js** dans le répertoire `static/vendors/bootstrap/`. Dans vos templates HTML, modifiez les liens pour pointer vers ces fichiers :
-
-```html
-<link rel="stylesheet" href="{% static 'vendors/bootstrap/css/bootstrap.min.css' %}">
-<script src="{% static 'vendors/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-```
-
-Assurez-vous que la configuration des fichiers statiques de Django est correctement effectuée.
 
 ---
 
@@ -83,7 +90,7 @@ Si vous souhaitez exporter des données d'une autre ligue, procédez ainsi :
 Exécutez le script :  
 ```bash
 python export_data.py
-```
+
 
 Une fois terminé, un dossier **`csv/`** sera créé à la racine du projet. Le fichier exporté sera nommé selon le format suivant :  
 ```
