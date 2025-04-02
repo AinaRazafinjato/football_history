@@ -18,6 +18,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path('football-history-admin/', admin.site.urls),
-    path('', include('matches.urls')),
+    path('football_history/', include('matches.urls')),
+    path('football_history/admin/', admin.site.urls),
 ]

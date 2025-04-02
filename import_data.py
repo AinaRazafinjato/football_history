@@ -3,6 +3,15 @@ import django
 import pandas as pd
 import logging
 
+TEAM_NAME_CORRECTIONS = {
+    
+    # Premier League
+    "Utd": "United",
+    "Nott'ham": "Nottingham",
+    "Wolves": "Wolverhampton",
+}
+
+
 # Configurer l’environnement Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'football_history.settings')
 django.setup()
@@ -30,6 +39,27 @@ try:
     # Charger les données depuis le CSV
     matches_df = pd.read_csv(csv_path)
     logger.info("CSV chargé avec succès.")
+    
+    # Fonction pour normaliser les noms d'équipes
+    def normalize_team_name(team_name):
+        """
+        Normalise les noms d'équipes en remplaçant les abréviations et corrections définies.
+        
+        Args:
+            team_name (str): Le nom brut de l'équipe.
+        
+        Returns:
+            str: Le nom normalisé de l'équipe.
+        """
+        words = team_name.split()
+        normalized_words = [TEAM_NAME_CORRECTIONS.get(word, word) for word in words]
+        return " ".join(filter(None, normalized_words))
+
+    
+    # Normalisations des nombre des équipes
+    matches_df['Home'] = matches_df['Home'].apply(normalize_team_name)
+    matches_df['Away'] = matches_df['Away'].apply(normalize_team_name)
+    
 
     # Extraire la saison à partir des dates du CSV
     matches_df['Date'] = pd.to_datetime(matches_df['Date'], errors='coerce')
