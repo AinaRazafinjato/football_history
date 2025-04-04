@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+from constant import TEAM_NAME_CORRECTIONS
 
 # Constants
 ROWS_TO_DROP = ['Date', 'Home', 'Away', 'Venue']
@@ -68,6 +69,25 @@ def clean_and_transform_data(df):
     # Convert 'Wk' and 'Attendance' to numeric
     df['Wk'] = pd.to_numeric(df['Wk'], errors='coerce').fillna(0).astype(int)
     df['Attendance'] = pd.to_numeric(df['Attendance'], errors='coerce')
+    
+    # Fonction pour normaliser les noms d'équipes
+    def normalize_team_name(team_name):
+        """
+        Normalise les noms d'équipes en remplaçant les abréviations et corrections définies.
+        
+        Args:
+            team_name (str): Le nom brut de l'équipe.
+        
+        Returns:
+            str: Le nom normalisé de l'équipe.
+        """
+        words = team_name.split()
+        normalized_words = [TEAM_NAME_CORRECTIONS.get(word, word) for word in words]
+        return " ".join(filter(None, normalized_words))
+
+    # Normaliser les noms des équipes dans les colonnes 'Home' et 'Away'
+    df['Home'] = df['Home'].apply(normalize_team_name)
+    df['Away'] = df['Away'].apply(normalize_team_name)
 
     # Pour les colonnes de conversion, on convertit en entier si possible, sinon on garde None
     for col in COLS_TO_CONVERT:
@@ -120,6 +140,7 @@ def save_to_csv(df, filename):
     csv_path = CSV_DIR / filename
     df.to_csv(csv_path, index=False)
 
+
 def process_fbref_data(url):
     """
     Processes FBref data from the given URL and saves it as a CSV.
@@ -139,6 +160,7 @@ def process_fbref_data(url):
     save_to_csv(cleaned_data, csv_filename)
     
     return cleaned_data
+
 
 # Usage
 if __name__ == "__main__":

@@ -3,13 +3,6 @@ import django
 import pandas as pd
 import logging
 
-# Dictionnaire pour corriger les noms d'équipes
-TEAM_NAME_CORRECTIONS = {
-    # Premier League
-    "Utd": "United",
-    "Nott'ham": "Nottingham",
-    "Wolves": "Wolverhampton",
-}
 
 # Configurer le logging pour enregistrer les informations et les erreurs
 logging.basicConfig(
@@ -50,24 +43,6 @@ try:
     season_name = f"{start_date.year}-{end_date.year}"
     logger.info(f"Saison déterminée : {season_name} ({start_date} à {end_date})")
     
-    # Fonction pour normaliser les noms d'équipes
-    def normalize_team_name(team_name):
-        """
-        Normalise les noms d'équipes en remplaçant les abréviations et corrections définies.
-        
-        Args:
-            team_name (str): Le nom brut de l'équipe.
-        
-        Returns:
-            str: Le nom normalisé de l'équipe.
-        """
-        words = team_name.split()
-        normalized_words = [TEAM_NAME_CORRECTIONS.get(word, word) for word in words]
-        return " ".join(filter(None, normalized_words))
-
-    # Normaliser les noms des équipes dans les colonnes 'Home' et 'Away'
-    matches_df['Home'] = matches_df['Home'].apply(normalize_team_name)
-    matches_df['Away'] = matches_df['Away'].apply(normalize_team_name)
     
     # Créer ou mettre à jour les équipes dans la base de données
     unique_teams = list(matches_df['Home'].drop_duplicates().sort_values())
