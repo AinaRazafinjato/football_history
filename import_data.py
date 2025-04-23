@@ -1,19 +1,8 @@
+from loguru import logger
 import os
 import django
 import pandas as pd
-import logging
 
-
-# Configurer le logging pour enregistrer les informations et les erreurs
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("import_data.log"),  # Enregistrer les logs dans un fichier
-        logging.StreamHandler()  # Afficher les logs dans la console
-    ]
-)
-logger = logging.getLogger(__name__)
 
 # Configurer l’environnement Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'football_history.settings')
@@ -21,6 +10,9 @@ django.setup()
 
 # Importer les modèles Django nécessaires
 from matches.models import Season, League, Team, MatchDay, Match
+
+# Configurer Loguru
+logger.add("import_data.log", rotation="10 MB", retention="10 days", level="INFO")
 
 try:
     # Chemin du fichier CSV contenant les données des matchs
@@ -42,7 +34,6 @@ try:
     end_date = matches_df['Date'].max().date()
     season_name = f"{start_date.year}-{end_date.year}"
     logger.info(f"Saison déterminée : {season_name} ({start_date} à {end_date})")
-    
     
     # Créer ou mettre à jour les équipes dans la base de données
     unique_teams = list(matches_df['Home'].drop_duplicates().sort_values())
@@ -120,7 +111,7 @@ try:
         else:
             logger.info(f"Match existant mis à jour : {row['Home']} vs {row['Away']} ({row['Date'].date()})")
 
-    logger.info("Données importées avec succès !")
+    logger.success("Données importées avec succès !")
 
 except FileNotFoundError:
     # Gérer le cas où le fichier CSV est introuvable
