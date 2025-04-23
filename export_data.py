@@ -2,73 +2,69 @@ import pandas as pd
 from pathlib import Path
 from constant import TEAM_NAME_CORRECTIONS
 
-# Constants
-ROWS_TO_DROP = ['Date', 'Home', 'Away', 'Venue']
-COLUMNS_TO_DROP = ['Day', 'Time', 'xG', 'xG.1', 'Match Report', 'Notes']
-REQUIRED_COLUMNS = ['Score', 'Wk', 'Attendance']
-COLS_TO_CONVERT = ['Wk', 'Score_Home', 'Score_Away', 'Attendance']
-COLS_ORDER = ['Wk', 'Date', 'Home', 'Score_Home', 'Score_Away', 'Away', 'Venue', 'Attendance', 'Referee']
+# Constantes
+ROWS_TO_DROP = ['Date', 'Home', 'Away', 'Venue']  # Colonnes nécessaires pour éviter les lignes incomplètes
+COLUMNS_TO_DROP = ['Day', 'Time', 'xG', 'xG.1', 'Match Report', 'Notes']  # Colonnes inutiles à supprimer
+REQUIRED_COLUMNS = ['Score', 'Wk', 'Attendance']  # Colonnes obligatoires pour le traitement
+COLS_TO_CONVERT = ['Wk', 'Score_Home', 'Score_Away', 'Attendance']  # Colonnes à convertir en valeurs numériques
+COLS_ORDER = ['Wk', 'Date', 'Home', 'Score_Home', 'Score_Away', 'Away', 'Venue', 'Attendance', 'Referee']  # Ordre final des colonnes
 
-# Define base directory and CSV directory
+# Définir le répertoire de base et le répertoire des fichiers CSV
 BASE_DIR = Path(__file__).parent
 CSV_DIR = BASE_DIR / "csv"
-CSV_DIR.mkdir(exist_ok=True, mode=0o755)
+CSV_DIR.mkdir(exist_ok=True, mode=0o755)  # Crée le répertoire CSV s'il n'existe pas
 
 
 def fetch_table_from_url(url):
     """
-    Fetches the first table from the given URL using pandas.
+    Récupère la première table HTML d'une URL donnée en utilisant pandas.
 
     Args:
-        url (str): The URL of the FBref page.
+        url (str): L'URL de la page FBref.
 
     Returns:
-        pd.DataFrame: The first table from the URL.
+        pd.DataFrame: La première table extraite de l'URL.
     """
     try:
         tables = pd.read_html(url)
         return tables[0]
     except Exception as e:
-        raise ValueError(f"Error fetching table from URL: {e}")
+        raise ValueError(f"Erreur lors de la récupération de la table depuis l'URL : {e}")
 
 
 def clean_and_transform_data(df):
     """
-    Cleans and transforms the FBref data.
+    Nettoie et transforme les données extraites de FBref.
 
     Args:
-        df (pd.DataFrame): The raw DataFrame.
+        df (pd.DataFrame): Le DataFrame brut contenant les données.
 
     Returns:
-        pd.DataFrame: The cleaned and transformed DataFrame.
+        pd.DataFrame: Le DataFrame nettoyé et transformé.
     """
-    # Drop rows with missing key values
+    # Supprimer les lignes avec des valeurs manquantes dans les colonnes clés
     df = df.dropna(subset=ROWS_TO_DROP)
     
-    # Drop unnecessary columns
+    # Supprimer les colonnes inutiles
     df = df.drop(columns=COLUMNS_TO_DROP, errors='ignore')
 
-    # Ensure required columns exist
+    # Vérifier que toutes les colonnes obligatoires sont présentes
     for col in REQUIRED_COLUMNS:
         if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
+            raise ValueError(f"Colonne obligatoire manquante : {col}")
 
-    # Split 'Score' column into 'Score_Home' and 'Score_Away'
+    # Diviser la colonne 'Score' en deux colonnes : 'Score_Home' et 'Score_Away'
     df[['Score_Home', 'Score_Away']] = df['Score'].str.split('–', expand=True)
 
-    # Convert score columns to numeric, les erreurs deviennent NaN
+    # Convertir les colonnes de score en valeurs numériques, les erreurs deviennent NaN
     df['Score_Home'] = pd.to_numeric(df['Score_Home'], errors='coerce')
     df['Score_Away'] = pd.to_numeric(df['Score_Away'], errors='coerce')
 
-    # Drop the original 'Score' column
+    # Supprimer la colonne originale 'Score'
     df = df.drop('Score', axis=1)
 
-    # Reorder columns
+    # Réorganiser les colonnes dans l'ordre souhaité
     df = df[COLS_ORDER]
-
-    # Convert 'Wk' and 'Attendance' to numeric
-    df['Wk'] = pd.to_numeric(df['Wk'], errors='coerce').fillna(0).astype(int)
-    df['Attendance'] = pd.to_numeric(df['Attendance'], errors='coerce')
     
     # Fonction pour normaliser les noms d'équipes
     def normalize_team_name(team_name):
@@ -89,14 +85,9 @@ def clean_and_transform_data(df):
     df['Home'] = df['Home'].apply(normalize_team_name)
     df['Away'] = df['Away'].apply(normalize_team_name)
 
-    # Pour les colonnes de conversion, on convertit en entier si possible, sinon on garde None
+    # Convertir les colonnes spécifiques en entiers si possible, sinon garder None
     for col in COLS_TO_CONVERT:
-        if 'Score' in col:
-            # Pour Score_Home et Score_Away, on souhaite que les valeurs invalides restent None
-            df[col] = pd.to_numeric(df[col], errors='coerce').apply(lambda x: int(x) if pd.notnull(x) else None)
-        else:
-            # Pour 'Wk' et 'Attendance', on laisse le résultat numérique
-            df[col] = pd.to_numeric(df[col], errors='coerce').apply(lambda x: int(x) if pd.notnull(x) else None)
+        df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
         
     return df
 
@@ -104,9 +95,15 @@ def clean_and_transform_data(df):
 def generate_csv_filename(url, df):
     """
     Génère un nom de fichier CSV basé sur l'URL et la saison extraite du DataFrame.
-    """
 
-    # Convertir la colonne 'Date' en datetime
+    Args:
+        url (str): L'URL de la page FBref.
+        df (pd.DataFrame): Le DataFrame contenant les données.
+
+    Returns:
+        str: Le nom du fichier CSV généré.
+    """
+    # Convertir la colonne 'Date' en format datetime
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     if df['Date'].dropna().empty:
         raise ValueError("Aucune date valide trouvée dans le DataFrame.")
@@ -118,6 +115,15 @@ def generate_csv_filename(url, df):
     
     # Extraire le nom de la ligue en excluant certains mots
     def extract_league_name(url):
+        """
+        Extrait le nom de la ligue à partir de l'URL.
+
+        Args:
+            url (str): L'URL de la page FBref.
+
+        Returns:
+            str: Le nom de la ligue.
+        """
         last_part = url.split('/')[-1]
         elements = last_part.split('-')
         exclude = {"Scores", "and", "Fixtures"}
@@ -131,11 +137,11 @@ def generate_csv_filename(url, df):
 
 def save_to_csv(df, filename):
     """
-    Saves the DataFrame to a CSV file.
+    Sauvegarde le DataFrame dans un fichier CSV.
 
     Args:
-        df (pd.DataFrame): The DataFrame to save.
-        filename (str): The name of the CSV file.
+        df (pd.DataFrame): Le DataFrame à sauvegarder.
+        filename (str): Le nom du fichier CSV.
     """
     csv_path = CSV_DIR / filename
     df.to_csv(csv_path, index=False)
@@ -143,31 +149,31 @@ def save_to_csv(df, filename):
 
 def process_fbref_data(url):
     """
-    Processes FBref data from the given URL and saves it as a CSV.
+    Traite les données FBref à partir de l'URL donnée et les sauvegarde dans un fichier CSV.
 
     Args:
-        url (str): The URL of the FBref page containing scores and fixtures.
+        url (str): L'URL de la page FBref contenant les scores et les matchs.
 
     Returns:
-        pd.DataFrame: The processed DataFrame.
+        pd.DataFrame: Le DataFrame traité.
     """
-    # Fetch and clean data
+    # Récupérer et nettoyer les données
     raw_data = fetch_table_from_url(url)
     cleaned_data = clean_and_transform_data(raw_data)
     
-    # Generate CSV filename and save data
+    # Générer le nom du fichier CSV et sauvegarder les données
     csv_filename = generate_csv_filename(url, cleaned_data)
     save_to_csv(cleaned_data, csv_filename)
     
     return cleaned_data
 
 
-# Usage
+# Utilisation
 if __name__ == "__main__":
     url = "https://fbref.com/en/comps/9/schedule/Premier-League-Scores-and-Fixtures"
     
     try:
         df = process_fbref_data(url)
-        print("Data processed and saved successfully.")
+        print("Les données ont été traitées et sauvegardées avec succès.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Une erreur s'est produite : {e}")
