@@ -16,7 +16,10 @@ __pycache__/
 logs/
 *.log
 
-# Les fichier bootstrap
+# Fichiers de configuration de l'IDE
+sys.stdout
+
+# Les fichiers bootstrap
 bootstrap/
 
 # Dossier de test
