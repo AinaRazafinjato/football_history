@@ -95,20 +95,20 @@ class LogoScraper:
         """Crée les dossiers pour stocker les logos"""
         
         # Define media directory and logo subdirectories
-        self.media_dir = os.path.join(BASE_DIR, "media")
-        Path(self.media_dir).mkdir(parents=True, exist_ok=True)
+        self.static_dir = os.path.join(BASE_DIR, "static")
+        Path(self.static_dir).mkdir(parents=True, exist_ok=True)
         
         logo_dirs = [
-            Path(self.media_dir) / "logos" / "countries",
-            Path(self.media_dir) / "logos" / "leagues", 
-            Path(self.media_dir) / "logos" / "teams"
+            Path(self.static_dir) / "logos" / "countries",
+            Path(self.static_dir) / "logos" / "leagues", 
+            Path(self.static_dir) / "logos" / "teams"
         ]
         
         # Create all necessary directories
         for directory in logo_dirs:
             directory.mkdir(parents=True, exist_ok=True)
             
-        logger.debug(f"Created logo directories at {self.media_dir}")
+        logger.debug(f"Created logo directories at {self.static_dir}")
 
     def standardize_name(self, original_name):
         """Standardise le nom de l'équipe selon notre format souhaité"""
@@ -175,10 +175,10 @@ class LogoScraper:
             
             # Sauvegarder directement avec le nom standardisé
             # Define media directory and logo subdirectories
-            self.media_dir = os.path.join(BASE_DIR, "media")
-            Path(self.media_dir).mkdir(parents=True, exist_ok=True)
+            self.static_dir = os.path.join(BASE_DIR, "media")
+            Path(self.static_dir).mkdir(parents=True, exist_ok=True)
             
-            team_folder = os.path.join(self.media_dir,'logos/teams', country, league)
+            team_folder = os.path.join(self.static_dir,'logos/teams', country, league)
             Path(team_folder).mkdir(parents=True, exist_ok=True)
             
             # Utiliser directement le nom standardisé pour le fichier
@@ -239,14 +239,14 @@ class LogoScraper:
         missing = []
         
         # Define media directory and logo subdirectories
-        self.media_dir = os.path.join(BASE_DIR, "media")
-        Path(self.media_dir).mkdir(parents=True, exist_ok=True)
+        self.static_dir = os.path.join(BASE_DIR, "media")
+        Path(self.static_dir).mkdir(parents=True, exist_ok=True)
         
-        folder_pattern = os.path.join(self.media_dir, 'logos/teams/*/*')  # Chercher dans tous les sous-dossiers pays/ligues
+        folder_pattern = os.path.join(self.static_dir, 'logos/teams/*/*')  # Chercher dans tous les sous-dossiers pays/ligues
         
         # Récupérer tous les logos existants
         existing_logos = []
-        for folder in Path(os.path.join(self.media_dir, 'logos/teams')).glob('*/*'):
+        for folder in Path(os.path.join(self.static_dir, 'logos/teams')).glob('*/*'):
             if not folder.is_dir():
                 continue
             for logo_file in folder.glob('*.png'):
@@ -300,15 +300,15 @@ class LogoScraper:
                     logger.info("Téléchargement des logos...")
                     
                     # Define media directory and logo subdirectories
-                    media_dir = os.path.join(BASE_DIR, "media")
+                    static_dir = os.path.join(BASE_DIR, "media")
                     
                     # Logo du pays
-                    country_folder = os.path.join(media_dir, 'logos/countries')
+                    country_folder = os.path.join(static_dir, 'logos/countries')
                     country_path = os.path.join(country_folder, f"{data['country_name']}.png")
                     self.download_logo(page, data['country_logo'], country_path)
 
                     # Logo de la ligue
-                    league_folder = os.path.join(media_dir, 'logos/leagues')
+                    league_folder = os.path.join(static_dir, 'logos/leagues')
                     league_path = os.path.join(league_folder, f"{data['league_name']}.png")
                     self.download_logo(page, data['league_logo'], league_path)
 
