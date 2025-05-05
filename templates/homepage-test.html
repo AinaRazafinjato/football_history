@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Football History{% endblock %}
+
+{% block content %}
+<!-- Tournament Section -->
+<div class="row py-3 align-items-center border-bottom">
+    <div class="col-auto">
+        <img src="{% static 'logos/leagues/Premier League.png' %}" 
+     alt="Premier League"
+     class="img-fluid" 
+     style="max-width: 48px;">
+    </div>
+    <div class="col">
+        <span class="text-muted small">England</span>
+        
+        <strong class="text-dark d-block">Premier League</strong>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-primary btn-sm rounded-circle p-1" aria-label="Favorite Tournament">
+            <i class="bi bi-star"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Match Card -->
+<div class="card my-3 shadow-sm">
+    <div class="card-body p-3">
+        <div class="row align-items-center">
+            <!-- Date/Time -->
+            <div class="col-2 text-center">
+                <small class="text-muted d-block">2024-08-16</small>
+                <small class="text-muted d-block">FT</small>
+            </div>
+
+            <!-- Teams -->
+            <div class="col-8">
+                <div class="d-flex flex-column gap-2">
+                    <!-- Home -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="{% static 'logos/teams/England/Premier League/Man Utd.png' %}" alt="Manchester United"
+                                class="img-fluid" style="width: 24px;">
+                            <span>Manchester United</span>
+                        </div>
+                        <span class="fw-bold">1</span>
+                    </div>
+                    <!-- Away -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="{% static 'logos/teams/England/Premier League/Fulham.png' %}" alt="Fulham"
+                                class="img-fluid" style="width: 24px;">
+                            <span>Fulham</span>
+                        </div>
+                        <span class="fw-bold">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Favorite Button -->
+            <div class="col-2 text-center">
+                <button class="btn btn-outline-secondary btn-sm rounded-circle p-1" aria-label="Favorite Match"
+                    onclick="toggleFavorite(this)">
+                    <i class="bi bi-star-fill text-warning"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

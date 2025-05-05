@@ -19,5 +19,5 @@ logs/
 # Les fichier bootstrap
 bootstrap/
 
-# Fichier de test
-test_script.py
+# Dossier de test
+test/

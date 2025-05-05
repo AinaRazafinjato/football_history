@@ -58,4 +58,4 @@ def home(request):
         'page_title': 'Matches par semaine'
     }
     
-    return render(request, 'home.html', context)
+    return render(request, 'homepage-test.html', context)
