@@ -1,0 +1,52 @@
+columns:
+  rows_to_drop:
+    - Date
+    - Home
+    - Away
+    - Venue
+  columns_to_drop:
+    - Day
+    - Match Report
+    - Notes
+    - Venue
+    - Attendance
+    - Referee
+  required_columns:
+    - Score
+    - Wk
+  cols_to_convert_int:
+    - Wk
+    - Score_Home
+    - Score_Away
+  cols_to_convert_float:
+    - xG_Home
+    - xG_Away
+  cols_order:
+    - Wk
+    - Date
+    - Time
+    - Home
+    - xG_Home
+    - Score_Home
+    - Score_Away
+    - xG_Away
+    - Away
+
+team_name_corrections:
+  Utd: "United"
+  Nott'ham: "Nottingham"
+  Wolves: "Wolverhampton Wanderers"
+  Brighton: "Brighton & Hove Albion"
+  Tottenham: "Tottenham Hotspur"
+  West Ham: "West Ham United"
+  FC: ""
+  AFC: ""
+  Man: "Manchester"
+  Spurs: "Tottenham Hotspur"
+
+paths:
+  csv_dir: "data/raw/csv"
+  logs_dir: "logs"
+
+urls:
+  default: "https://fbref.com/en/comps/9/schedule/Premier-League-Scores-and-Fixtures"
