@@ -1,6 +1,6 @@
 from django.db import models
 from django.forms import ValidationError
-from .constants import TEAM_MAPPING
+from .constants import TEAM_SHORT_NAME_MAPPING, LEAGUE_COUNTRY_MAPPING
 
 class Season(models.Model):
     season_name = models.CharField(max_length=9, unique=True)
@@ -20,16 +20,8 @@ class League(models.Model):
     
     def suggest_country(self):
         """Suggest a country based on league name"""
-        league_country_mapping = {
-            'Premier League': 'England',
-            'La Liga': 'Spain',
-            'Bundesliga': 'Germany',
-            'Serie A': 'Italy',
-            'Ligue 1': 'France',
-            # Add more mappings as needed
-        }
         
-        for league_pattern, country in league_country_mapping.items():
+        for league_pattern, country in LEAGUE_COUNTRY_MAPPING.items():
             if league_pattern.lower() in self.league_name.lower():
                 return country
         return None
@@ -72,7 +64,7 @@ class Team(models.Model):
     def save(self, *args, **kwargs):
         if not self.short_name:
             found = False
-            for short, full in TEAM_MAPPING.items():
+            for short, full in TEAM_SHORT_NAME_MAPPING.items():
                 if self.team_name.strip().lower() == full.lower():
                     self.short_name = short
                     found = True

@@ -8,6 +8,7 @@ from loguru import logger
 from typing import Dict, Tuple, List, Optional
 import re
 import glob
+from .constants import TEAM_LOGO_MAPPING, LEAGUE_COUNTRY_MAPPING
 
 # Constants
 LOG_FILE = "logs/import_data.log"
@@ -38,30 +39,6 @@ from matches.models import Season, League, LeagueSeason, Team, TeamSeason, Match
 os.makedirs(Path(LOG_FILE).parent, exist_ok=True)  # Créer le dossier de logs s'il n'existe pas
 logger.add(LOG_FILE, rotation=LOG_ROTATION, retention=LOG_RETENTION, level=LOG_LEVEL)
 
-# Mapping des noms d'équipe vers les noms de fichier de logo
-TEAM_LOGO_MAPPING = {
-    "Arsenal": "Arsenal.png",
-    "Aston Villa": "Aston_Villa.png",
-    "Bournemouth": "Bournemouth.png",
-    "Brentford": "Brentford.png",
-    "Brighton & Hove Albion": "Brighton_and_Hove_Albion.png",
-    "Chelsea": "Chelsea.png",
-    "Crystal Palace": "Crystal_Palace.png",
-    "Everton": "Everton.png",
-    "Fulham": "Fulham.png",
-    "Ipswich Town": "Ipswich_Town.png",
-    "Leicester City": "Leicester_City.png",
-    "Liverpool": "Liverpool.png",
-    "Manchester City": "Manchester_City.png",
-    "Manchester United": "Manchester_United.png",
-    "Newcastle United": "Newcastle_United.png",
-    "Nottingham Forest": "Nottingham_Forest.png",
-    "Southampton": "Southampton.png",
-    "Tottenham Hotspur": "Tottenham_Hotspur.png",
-    "West Ham United": "West_Ham_United.png",
-    "Wolverhampton Wanderers": "Wolverhampton_Wanderers.png",
-}
-
 
 def extract_league_and_country(csv_filename: str) -> Tuple[str, str]:
     """Extrait le nom de la ligue et le pays à partir du nom de fichier CSV"""
@@ -69,17 +46,8 @@ def extract_league_and_country(csv_filename: str) -> Tuple[str, str]:
     league_name = parts[0].strip()
     country = None
     
-    # Mapping des ligues vers les pays
-    league_country_mapping = {
-        'Premier': 'England',
-        'LaLiga': 'Spain',
-        'Serie A': 'Italy',
-        'Bundesliga': 'Germany',
-        'Ligue 1': 'France'
-    }
-    
     # Déterminer le pays en fonction du nom de la ligue
-    for league_key, country_value in league_country_mapping.items():
+    for league_key, country_value in LEAGUE_COUNTRY_MAPPING.items():
         if league_key in csv_filename:
             country = country_value
             break

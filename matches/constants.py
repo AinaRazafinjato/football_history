@@ -1,4 +1,4 @@
-TEAM_MAPPING = {
+TEAM_SHORT_NAME_MAPPING = {
     "ARS": "Arsenal",
     "AST": "Aston Villa",
     "BOU": "Bournemouth",
@@ -19,4 +19,13 @@ TEAM_MAPPING = {
     "TOT": "Tottenham",
     "WHU": "West Ham",
     "WOL": "Wolverhampton"
+}
+
+LEAGUE_COUNTRY_MAPPING = {
+    'Premier League': 'England',
+    'La Liga': 'Spain',
+    'Bundesliga': 'Germany',
+    'Serie A': 'Italy',
+    'Ligue 1': 'France',
+    # Add more mappings as needed
 }

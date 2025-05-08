@@ -21,6 +21,7 @@ sys.stdout
 
 # Les fichiers bootstrap
 bootstrap/
+bootstrap-icons/
 
 # Dossier de test
 test/

@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Titre Dynamique -->
-    <title>{% block title %}Mon Site de Matches{% endblock %}</title>
+    <title>{% block title %}Football History{% endblock %}</title>
     
     <!-- Bootstrap CSS Local -->
     <link rel="stylesheet" href="{% static 'vendors/bootstrap/css/bootstrap.min.css' %}">
@@ -25,8 +25,8 @@
     <!-- Header (Navbar) -->
     {% include 'partials/navbar.html' %}
 
-    <!-- Contenu Principal -->
-    <main class="container mt-4">
+    <!-- Contenu Principal avec classe pour éviter le chevauchement -->
+    <main class="container content-with-fixed-nav mt-4">
         {% block content %}{% endblock %}
     </main>
 
@@ -35,5 +35,41 @@
 
     <!-- Scripts Bootstrap -->
     <script src="{% static 'vendors/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    
+    <!-- Script pour gérer les éléments fixes et le scroll -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation de la navbar lors du scroll
+            const navbar = document.querySelector('.navbar.fixed-top');
+            if (navbar) {
+                window.addEventListener('scroll', function() {
+                    if (window.scrollY > 10) {
+                        navbar.classList.add('navbar-scrolled');
+                    } else {
+                        navbar.classList.remove('navbar-scrolled');
+                    }
+                });
+            }
+            
+            // Initialisation des tooltips Bootstrap
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Vérifier si on est sur mobile pour ajuster le comportement
+            const checkMobile = function() {
+                if (window.innerWidth < 992) {
+                    document.body.classList.add('mobile-view');
+                } else {
+                    document.body.classList.remove('mobile-view');
+                }
+            };
+            
+            // Exécuter au chargement et à chaque redimensionnement
+            checkMobile();
+            window.addEventListener('resize', checkMobile);
+        });
+    </script>
 </body>
 </html>

@@ -19,7 +19,7 @@
             <div class="col">
                 <div class="card shadow-sm h-100">
                     <div class="card-header bg-secondary text-white">
-                        {{ match.match_date|date:"d/m/Y" }} • {{ match.venue }}
+                        {{ match.match_date|date:"l, jS F Y" }}
                     </div>
                     <div class="card-body">
                         <!-- Contenu existant des matches -->
@@ -56,7 +56,7 @@
                         <div class="row mt-3">
                             <div class="col text-center text-muted small">
                                 <i class="fas fa-trophy"></i> <!-- Icône optionnelle -->
-                                {{ match.league }}
+                                Premier League 
                             </div>
                         </div>
                     </div>

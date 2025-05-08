@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}Football History{% endblock %}
+
+
+{% block content %}
+<!-- Added container div to center the league section -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 league-section mb-4">
+            <!-- Tournament Section - Reste fixe jusqu'au changement de ligue -->
+            {% if league %}
+            <div class="row py-3 align-items-center border-bottom sticky-top bg-white shadow-sm league-header"
+                 data-bs-toggle="tooltip" title="Ligue actuelle">
+                <!-- Meilleur alignement logo + nom de ligue -->
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <img src="{% static 'logos/' %}{{ league.logo }}" 
+                             alt="{{ league.league_name }}"
+                             class="img-fluid" 
+                             style="max-width: 48px;">
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">{{ league.country }}</span>
+                        <strong class="fs-5 fw-bold" 
+                               style="color: var(--primary-color, #0d6efd); letter-spacing: 0.5px; line-height: 1.2;">
+                            {{ league.league_name }}
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matches Loop avec design amélioré pour mobile -->
+            <div class="matches-container pt-2">
+                {% if matches %}
+                    {% for match in matches %}
+                    <div class="card my-3 shadow-sm match-card">
+                        <div class="card-body p-3">
+                            <div class="row align-items-center">
+                                <!-- Date/Time -->
+                                <div class="col-date text-center">
+                                    <!-- Format normal pour les écrans medium et au-delà - Remplacer par un format qui fonctionne correctement -->
+                                    <small class="text-muted d-none d-md-block">{{ match.match_date|date:"j F Y" }}</small>
+                                    <!-- Format compact pour mobile utilisant les filtres Django existants -->
+                                    <small class="text-muted d-block d-md-none">{{ match.match_date|date:"j F" }}</small>
+                                    <small class="text-muted d-block">
+                                        {% if match.score_home is not None and match.score_away is not None %}
+                                            FT
+                                        {% else %}
+                                            {{ match.time|time:"H:i" }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+
+                                <!-- Teams -->
+                                <div class="col-teams">
+                                    <div class="d-flex flex-column gap-2">
+                                        <!-- Home -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% if match.team_home.logo %}
+                                                <img src="{% static 'logos/' %}{{ match.team_home.logo }}" 
+                                                     alt="{{ match.team_home }}"
+                                                     class="img-fluid team-logo" 
+                                                     style="width: 24px;">
+                                                {% endif %}
+                                                <span class="team-name d-none d-md-inline {{ 'home'|winner_class:match }}">{{ match.team_home }}</span>
+                                                <span class="team-name d-inline d-md-none {{ 'home'|winner_class:match }}" title="{{ match.team_home }}">{{ match.team_home|ajust_team_name }}</span>
+                                            </div>
+
+                                            <span class="fw-bold">
+                                            {% if match.score_home is not None %}
+                                                {{ match.score_home }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                            </span>
+                                        </div>
+                                        <!-- Away -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% if match.team_away.logo %}
+                                                <img src="{% static 'logos/' %}{{ match.team_away.logo }}" 
+                                                     alt="{{ match.team_away }}"
+                                                     class="img-fluid team-logo" 
+                                                     style="width: 24px;">
+                                                {% endif %}
+                                                <span class="team-name d-none d-md-inline {{ 'away'|winner_class:match }}">{{ match.team_away }}</span>
+                                                <span class="team-name d-inline d-md-none {{ 'away'|winner_class:match }}" title="{{ match.team_away }}">{{ match.team_away|ajust_team_name }}</span>
+                                            </div>
+
+                                            <span class="fw-bold">
+                                                {% if match.score_away is not None %}
+                                                    {{ match.score_away }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stats/Details link -->
+                                <div class="col-stats text-end">
+                                    <a href="#" class="btn btn-sm btn-light">
+                                        <i class="fas fa-chart-bar"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info my-3">
+                        Aucun match disponible pour le moment.
+                    </div>
+                {% endif %}
+            </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    Aucune ligue sélectionnée
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Bouton "back to top" -->
+<div id="back-to-top" class="back-to-top">
+    <i class="fas fa-arrow-up"></i>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Effet shadow pour le header de ligue quand on scroll
+        const leagueHeader = document.querySelector('.league-header');
+        if (leagueHeader) {
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 10) {
+                    leagueHeader.classList.add('scrolled');
+                } else {
+                    leagueHeader.classList.remove('scrolled');
+                }
+            });
+        }
+        
+        // Bouton "back to top" avec gestion pour mobile
+        const backToTop = document.getElementById('back-to-top');
+        const matchesContainer = document.querySelector('.matches-container');
+        
+        if (backToTop && matchesContainer) {
+            matchesContainer.addEventListener('scroll', function() {
+                if (this.scrollTop > 300) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+            
+            backToTop.addEventListener('click', function() {
+                matchesContainer.scrollTo({top: 0, behavior: 'smooth'});
+            });
+        }
+        
+        // Animation d'apparition des cartes de match
+        const matchCards = document.querySelectorAll('.match-card');
+        if (matchCards.length) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('match-card-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            matchCards.forEach(card => {
+                observer.observe(card);
+            });
+        }
+    });
+</script>
+
+{% endblock %}

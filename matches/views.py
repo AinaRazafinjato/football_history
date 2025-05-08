@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .models import Match
 
-def home(request):
+def home_v1(request):
     # Récupération de tous les matches triés par date croissante
     all_matches = Match.objects.all().order_by('match_date')
     
@@ -58,7 +58,22 @@ def home(request):
         'page_title': 'Matches par semaine'
     }
     
-    return render(request, 'home.html', context)
+    return render(request, 'home_v1.html', context)
 
-def homepage_test(request):
-    return render(request, 'homepage-test.html', {'page_title': 'Homepage'})
+def home_v2(request):
+    # Récupération de tous les matchs triés par date
+    matches = Match.objects.all().order_by('-match_date')
+    
+    # Récupération d'une ligue (pour l'en-tête, vous pouvez ajuster selon vos besoins)
+    league = None
+    if matches.exists():
+        # Récupère la ligue du premier match via son day.league_season.league
+        league = matches[0].day.league_season.league
+    
+    context = {
+        'page_title': 'Home_v2',
+        'matches': matches,
+        'league': league
+    }
+    
+    return render(request, 'home_v2.html', context)
