@@ -11,8 +11,7 @@
         <div class="col-md-8 col-lg-6 league-section mb-4">
             <!-- Tournament Section - Reste fixe jusqu'au changement de ligue -->
             {% if league %}
-            <div class="row py-3 align-items-center border-bottom sticky-top bg-white shadow-sm league-header"
-                 data-bs-toggle="tooltip" title="Ligue actuelle">
+            <div class="row py-3 align-items-center border-bottom sticky-top bg-white shadow-sm league-header" title="{{ league.league_name }}, {{ league.country }}">
                 <!-- Meilleur alignement logo + nom de ligue -->
                 <div class="d-flex align-items-center">
                     <div class="me-3">
@@ -43,7 +42,7 @@
                                     <!-- Format normal pour les écrans medium et au-delà - Remplacer par un format qui fonctionne correctement -->
                                     <small class="text-muted d-none d-md-block">{{ match.match_date|date:"j F Y" }}</small>
                                     <!-- Format compact pour mobile utilisant les filtres Django existants -->
-                                    <small class="text-muted d-block d-md-none">{{ match.match_date|date:"j F" }}</small>
+                                    <small class="text-muted d-block d-md-none">{{ match.match_date|date:"d/m" }}</small>
                                     <small class="text-muted d-block">
                                         {% if match.score_home is not None and match.score_away is not None %}
                                             FT
