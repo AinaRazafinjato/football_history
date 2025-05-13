@@ -64,8 +64,8 @@
                                                      class="img-fluid team-logo" 
                                                      style="width: 24px;">
                                                 {% endif %}
-                                                <span class="team-name d-none d-md-inline {{ 'home'|winner_class:match }}">{{ match.team_home }}</span>
-                                                <span class="team-name d-inline d-md-none {{ 'home'|winner_class:match }}" title="{{ match.team_home }}">{{ match.team_home|ajust_team_name }}</span>
+                                                <span class="team-name d-none d-lg-inline {{ 'home'|winner_class:match }}">{{ match.team_home }}</span>
+                                                <span class="team-name d-inline d-lg-none {{ 'home'|winner_class:match }}" title="{{ match.team_home }}">{{ match.team_home|ajust_team_name }}</span>
                                             </div>
 
                                             <span class="fw-bold">
@@ -85,8 +85,8 @@
                                                      class="img-fluid team-logo" 
                                                      style="width: 24px;">
                                                 {% endif %}
-                                                <span class="team-name d-none d-md-inline {{ 'away'|winner_class:match }}">{{ match.team_away }}</span>
-                                                <span class="team-name d-inline d-md-none {{ 'away'|winner_class:match }}" title="{{ match.team_away }}">{{ match.team_away|ajust_team_name }}</span>
+                                                <span class="team-name d-none d-lg-inline {{ 'away'|winner_class:match }}">{{ match.team_away }}</span>
+                                                <span class="team-name d-inline d-lg-none {{ 'away'|winner_class:match }}" title="{{ match.team_away }}">{{ match.team_away|ajust_team_name }}</span>
                                             </div>
 
                                             <span class="fw-bold">
@@ -177,6 +177,26 @@
             matchCards.forEach(card => {
                 observer.observe(card);
             });
+        }
+
+        // Défilement automatique vers le premier match de la semaine actuelle
+        const today = new Date();
+        const cards = document.querySelectorAll('.match-card');
+        let foundCurrentWeek = false;
+        
+        // Parcourir tous les matchs pour trouver le premier de la semaine actuelle
+        for (let i = 0; i < cards.length; i++) {
+            const dateText = cards[i].querySelector('.col-date small:first-child').textContent;
+            const matchDate = new Date(dateText.replace(/(\d+)\/(\d+)/, '$2/$1/' + today.getFullYear()));
+            
+            // Si la date est dans la semaine actuelle
+            if (matchDate >= new Date('{{ current_week_start|date:"Y-m-d" }}') && 
+                matchDate <= new Date('{{ current_week_end|date:"Y-m-d" }}')) {
+                // Faire défiler jusqu'à cette carte
+                cards[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                foundCurrentWeek = true;
+                break;
+            }
         }
     });
 </script>

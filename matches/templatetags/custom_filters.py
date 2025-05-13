@@ -1,5 +1,6 @@
 from django import template
 from .constants import TEAM_SHORTCUTS
+from datetime import datetime, timedelta
 
 register = template.Library()
 
@@ -48,3 +49,15 @@ def winner_class(team_type, match):
         return "text-draw"
     
     return ""  # Match nul ou pas encore joué
+
+@register.filter
+def week_start(date_str):
+    """Retourne le lundi de la semaine"""
+    date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+    return (date_obj - timedelta(days=date_obj.weekday())).strftime('%Y-%m-%d')
+
+@register.filter
+def week_end(date_str):
+    """Retourne le dimanche de la semaine"""
+    date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+    return (date_obj - timedelta(days=date_obj.weekday()) + timedelta(days=6)).strftime('%Y-%m-%d')
