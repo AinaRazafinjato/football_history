@@ -7,8 +7,12 @@ from pathlib import Path
 from loguru import logger
 from typing import Dict, Tuple, List, Optional
 import re
-import glob
-from .constants import TEAM_LOGO_MAPPING, LEAGUE_COUNTRY_MAPPING
+# Import constants properly based on how the script is run
+try:
+    from .constants import TEAM_LOGO_MAPPING, LEAGUE_COUNTRY_MAPPING
+except ImportError:
+    # When running as a standalone script
+    from constants import TEAM_LOGO_MAPPING, LEAGUE_COUNTRY_MAPPING
 
 # Constants
 LOG_FILE = "logs/import_data.log"
@@ -336,12 +340,8 @@ def import_matches(matches_df: pd.DataFrame, teams: Dict[str, Team],
         team_away = teams.get(row['Away'])
 
         # Vérifier si les équipes existent
-        if not team_home or not team_away:
-            logger.warning(f"Équipe introuvable pour la ligne {index}: {row['Home']} ou {row['Away']}")
-            continue
-
         # Créer ou mettre à jour le MatchDay (journée de match)
-        match_day, matchday_created = MatchDay.objects.update_or_create(
+        match_day, _ = MatchDay.objects.update_or_create(
             day_number=int(row['Wk']),
             league_season=league_season,
             defaults={'day_date': row['Date'].date()}
@@ -373,12 +373,8 @@ def import_matches(matches_df: pd.DataFrame, teams: Dict[str, Team],
             
         if 'Venue' in row and not pd.isna(row['Venue']):
             match_data['venue'] = row['Venue']
-            
-        if 'Referee' in row and not pd.isna(row['Referee']):
-            match_data['referee'] = row['Referee']
-
         # Créer ou mettre à jour le match dans la base de données
-        match, created = Match.objects.update_or_create(
+        _, created = Match.objects.update_or_create(
             match_date=row['Date'].date(),
             team_home=team_home,
             team_away=team_away,
