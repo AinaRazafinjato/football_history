@@ -81,13 +81,15 @@ Fonctionnement :
 ## 🔄 Flux de travail typique
 
 ```bash
-# Étape 1 : Exporter les données
+# Étape 1 : Exporter les données (optionnel)
+# Assurez-vous que le fichier CSV est présent dans le dossier `csv`
 python scripts/runner.py export_data/export_data
 
-# Étape 2 : Télécharger les logos
+# Étape 2 : Télécharger les logos (optionnel)
+# Assurez-vous que les logos sont présents dans le dossier `static/logos/`
 python scripts/runner.py logo_scraper/logo_scraper
 
-# Étape 3 : Importer les données
+# Étape 3 : Importer les données (obligatoire)
 python scripts/runner.py import_data/import_data --csv "Premier-League-2024-2025.csv"
 ```
 
@@ -95,7 +97,7 @@ python scripts/runner.py import_data/import_data --csv "Premier-League-2024-2025
 
 Ce projet utilise Bootstrap pour styliser l'interface de l'application. Deux options s'offrent à vous :
 
-### 1. Fichiers locaux
+### Fichiers locaux
 - Télécharger la version compilée (Compiled CSS and JS) depuis la [page officielle de téléchargement de Bootstrap](https://getbootstrap.com/docs/5.0/getting-started/download/)
 - Décompresser l'archive et placer les dossiers `css` et `js` dans le répertoire `bootstrap` de votre projet
 - Dans vos templates HTML, modifier les liens :
@@ -103,13 +105,6 @@ Ce projet utilise Bootstrap pour styliser l'interface de l'application. Deux opt
   <link rel="stylesheet" href="{% static 'vendors/bootstrap/css/bootstrap.min.css' %}">
   <script src="{% static 'vendors/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
   ```
-
-### 2. Via CDN (recommandé)
-Ajouter simplement les liens CDN dans vos templates HTML :
-```html
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-```
 
 ## 🚀 Lancement de l'Application
 
