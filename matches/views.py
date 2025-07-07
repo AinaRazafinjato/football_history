@@ -1,7 +1,8 @@
 from datetime import timedelta, date
 from django.shortcuts import render
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from .models import Match
+from django.db.models import Q
+from .models import Match, Team, League, Season
 
 def home_v1(request):
     # Récupération de tous les matches triés par date croissante
@@ -104,3 +105,70 @@ def home_v2(request):
     }
     
     return render(request, 'home_v2.html', context)
+
+def search_matches(request):
+    # Get search parameters
+    query = request.GET.get('q', '')
+    year = request.GET.get('year', '')
+    team = request.GET.get('team', '')
+    league = request.GET.get('league', '')
+    
+    # Start with all matches
+    matches = Match.objects.select_related(
+        'team_home', 'team_away', 'day__league_season__league', 'day__league_season__season'
+    ).all()
+    
+    # Apply keyword search
+    if query:
+        matches = matches.filter(
+            Q(team_home__team_name__icontains=query) |
+            Q(team_away__team_name__icontains=query) |
+            Q(day__league_season__league__league_name__icontains=query)
+        )
+    
+    # Apply year filter
+    if year:
+        matches = matches.filter(match_date__year=year)
+    
+    # Apply team filter
+    if team:
+        matches = matches.filter(
+            Q(team_home__id=team) | Q(team_away__id=team)
+        )
+    
+    # Apply league filter
+    if league:
+        matches = matches.filter(day__league_season__league__id=league)
+    
+    # Order results by date
+    matches = matches.order_by('-match_date', 'time')
+    
+    # Pagination
+    paginator = Paginator(matches, 20)  # 20 matches per page
+    page = request.GET.get('page')
+    try:
+        matches_page = paginator.page(page)
+    except PageNotAnInteger:
+        matches_page = paginator.page(1)
+    except EmptyPage:
+        matches_page = paginator.page(paginator.num_pages)
+    
+    # Get filter options for the search form
+    years = Match.objects.dates('match_date', 'year').values_list('match_date__year', flat=True).distinct().order_by('-match_date__year')
+    teams = Team.objects.all().order_by('team_name')
+    leagues = League.objects.all().order_by('league_name')
+    
+    context = {
+        'page_title': 'Search Results',
+        'matches': matches_page,
+        'query': query,
+        'selected_year': year,
+        'selected_team': team,
+        'selected_league': league,
+        'years': years,
+        'teams': teams,
+        'leagues': leagues,
+        'total_results': paginator.count,
+    }
+    
+    return render(request, 'search_results.html', context)
