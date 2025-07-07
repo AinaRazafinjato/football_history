@@ -31,6 +31,8 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+**Note**: Bootstrap CSS/JS are automatically loaded from CDN - no manual Bootstrap installation required!
+
 ### Access the Application
 Open your browser to:
 - **Weekly view**: http://localhost:8000/v1/
@@ -127,7 +129,7 @@ python scripts/runner.py logo_scraper/logo_scraper
 ## 🌟 Key Technologies
 
 - **Backend**: Django 5.1.7, Python 3.12+, SQLite/PostgreSQL
-- **Frontend**: Bootstrap 5, Font Awesome, Custom CSS
+- **Frontend**: Bootstrap 5 (CDN), Font Awesome, Custom CSS
 - **Data Processing**: Pandas, NumPy, BeautifulSoup4
 - **Web Scraping**: Playwright, Requests
 - **Logging**: Loguru for detailed operation logs
@@ -173,6 +175,7 @@ python manage.py runserver
 - Search functionality across matches and teams
 - Responsive design for all devices
 - Comprehensive logging and error handling
+- Simplified installation with Bootstrap CDN (no manual Bootstrap setup needed)
 
 ### 🔧 Future Improvements
 - Support for multiple leagues (currently optimized for Premier League)
