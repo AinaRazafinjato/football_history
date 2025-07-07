@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - Football History{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-chart-bar me-2"></i>Statistics Dashboard</h1>
+                <div class="d-flex gap-2">
+                    <span class="badge bg-primary">{{ total_matches }} matches</span>
+                    <span class="badge bg-success">{{ total_goals }} goals</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-filter me-2"></i>Filters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="league" class="form-label">League</label>
+                            <select class="form-select" id="league" name="league">
+                                <option value="">All Leagues</option>
+                                {% for league in leagues %}
+                                    <option value="{{ league.id }}" {% if league.id|stringformat:"s" == selected_league %}selected{% endif %}>
+                                        {{ league.league_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="season" class="form-label">Season</label>
+                            <select class="form-select" id="season" name="season">
+                                <option value="">All Seasons</option>
+                                {% for season in seasons %}
+                                    <option value="{{ season.id }}" {% if season.id|stringformat:"s" == selected_season %}selected{% endif %}>
+                                        {{ season.season_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="date_from" class="form-label">From Date</label>
+                            <input type="date" class="form-control" id="date_from" name="date_from" value="{{ selected_date_from }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="date_to" class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="date_to" name="date_to" value="{{ selected_date_to }}">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search me-2"></i>Apply Filters
+                            </button>
+                            <a href="{% url 'statistics' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-column me-2"></i>Goals by Team
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="goalsChart" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Win/Draw/Loss Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="winLossChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Trends -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Monthly Goals Trend
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyTrendChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Statistics Table -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-table me-2"></i>Team Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Team</th>
+                                    <th>Matches</th>
+                                    <th>Goals</th>
+                                    <th>Wins</th>
+                                    <th>Draws</th>
+                                    <th>Losses</th>
+                                    <th>Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for team_name, stats in team_stats %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        <strong>{{ team_name }}</strong>
+                                    </td>
+                                    <td>{{ stats.matches_played }}</td>
+                                    <td>
+                                        <span class="badge bg-success">{{ stats.goals_scored }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ stats.wins }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">{{ stats.draws }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger">{{ stats.losses }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ stats.points }}</strong>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center">No data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- League Statistics -->
+    {% if league_stats %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy me-2"></i>League Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for league_name, stats in league_stats.items %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">{{ league_name }}</h5>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="text-primary">
+                                                <i class="fas fa-futbol fa-2x"></i>
+                                                <div class="mt-2">
+                                                    <strong>{{ stats.matches }}</strong>
+                                                    <div class="small text-muted">Matches</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="text-success">
+                                                <i class="fas fa-bullseye fa-2x"></i>
+                                                <div class="mt-2">
+                                                    <strong>{{ stats.goals }}</strong>
+                                                    <div class="small text-muted">Goals</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="text-info">
+                                                <i class="fas fa-chart-line fa-2x"></i>
+                                                <div class="mt-2">
+                                                    <strong>{{ stats.avg_goals_per_match }}</strong>
+                                                    <div class="small text-muted">Avg/Match</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Prepare data for charts
+    const teamStats = {{ team_stats|safe }};
+    const monthlyGoals = {{ monthly_goals|safe }};
+    
+    // Team Goals Chart
+    const teamNames = [];
+    const teamGoals = [];
+    const teamWins = [];
+    const teamDraws = [];
+    const teamLosses = [];
+    
+    {% for team_name, stats in team_stats %}
+        teamNames.push('{{ team_name }}');
+        teamGoals.push({{ stats.goals_scored }});
+        teamWins.push({{ stats.wins }});
+        teamDraws.push({{ stats.draws }});
+        teamLosses.push({{ stats.losses }});
+    {% endfor %}
+    
+    // Goals Chart
+    const goalsCtx = document.getElementById('goalsChart').getContext('2d');
+    new Chart(goalsCtx, {
+        type: 'bar',
+        data: {
+            labels: teamNames,
+            datasets: [{
+                label: 'Goals Scored',
+                data: teamGoals,
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // Win/Loss Distribution Chart
+    const totalWins = teamWins.reduce((a, b) => a + b, 0);
+    const totalDraws = teamDraws.reduce((a, b) => a + b, 0);
+    const totalLosses = teamLosses.reduce((a, b) => a + b, 0);
+    
+    const winLossCtx = document.getElementById('winLossChart').getContext('2d');
+    new Chart(winLossCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Wins', 'Draws', 'Losses'],
+            datasets: [{
+                data: [totalWins, totalDraws, totalLosses],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.8)',
+                    'rgba(255, 193, 7, 0.8)',
+                    'rgba(220, 53, 69, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(220, 53, 69, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+    
+    // Monthly Trend Chart
+    const monthlyLabels = [];
+    const monthlyData = [];
+    
+    {% for month, goals in monthly_goals %}
+        monthlyLabels.push('{{ month }}');
+        monthlyData.push({{ goals }});
+    {% endfor %}
+    
+    const monthlyCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+    new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: monthlyLabels,
+            datasets: [{
+                label: 'Goals per Month',
+                data: monthlyData,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

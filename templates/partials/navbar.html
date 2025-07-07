@@ -15,8 +15,28 @@
         
         <!-- Content that collapses on mobile -->
         <div class="collapse navbar-collapse" id="navbarSearch">
-            <form class="d-flex align-items-center ms-auto mt-2 mt-lg-0" role="search" method="GET" action="{% url 'search_matches' %}">
-                <div class="position-relative w-100">
+            <!-- Navigation links -->
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home_v2' %}active{% endif %}" href="{% url 'home_v2' %}">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'statistics' %}active{% endif %}" href="{% url 'statistics' %}">
+                        <i class="fas fa-chart-bar me-1"></i>Statistics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'search_matches' %}active{% endif %}" href="{% url 'search_matches' %}">
+                        <i class="fas fa-search me-1"></i>Search
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- Search form -->
+            <form class="d-flex align-items-center mt-2 mt-lg-0" role="search" method="GET" action="{% url 'search_matches' %}">
+                <div class="position-relative">
                     <!-- Integrated search icon -->
                     <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-light opacity-75"></i>
                     
@@ -30,6 +50,7 @@
                             border-radius: 25px;
                             background: rgba(255, 255, 255, 0.1);
                             transition: all 0.3s ease;
+                            width: 250px;
                         "
                     >
                 </div>

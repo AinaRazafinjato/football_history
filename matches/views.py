@@ -1,7 +1,8 @@
 from datetime import timedelta, date
 from django.shortcuts import render
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
+from django.db.models import Q, Sum, Count, F, Case, When, IntegerField
+from django.http import JsonResponse
 from .models import Match, Team, League, Season
 
 def home_v1(request):
@@ -172,3 +173,169 @@ def search_matches(request):
     }
     
     return render(request, 'search_results.html', context)
+
+
+def statistics(request):
+    """
+    Statistics dashboard view with interactive charts and filters
+    """
+    # Get filter parameters
+    league_id = request.GET.get('league', '')
+    season_id = request.GET.get('season', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    
+    # Base queryset
+    matches = Match.objects.select_related(
+        'team_home', 'team_away', 'day__league_season__league', 'day__league_season__season'
+    ).all()
+    
+    # Apply filters
+    if league_id:
+        matches = matches.filter(day__league_season__league__id=league_id)
+    if season_id:
+        matches = matches.filter(day__league_season__season__id=season_id)
+    if date_from:
+        matches = matches.filter(match_date__gte=date_from)
+    if date_to:
+        matches = matches.filter(match_date__lte=date_to)
+    
+    # Only include matches with results
+    matches = matches.filter(score_home__isnull=False, score_away__isnull=False)
+    
+    # Calculate team statistics
+    team_stats = {}
+    
+    # Get all teams that played in filtered matches
+    teams = set()
+    for match in matches:
+        teams.add(match.team_home)
+        teams.add(match.team_away)
+    
+    for team in teams:
+        # Home matches
+        home_matches = matches.filter(team_home=team)
+        home_goals = home_matches.aggregate(total=Sum('score_home'))['total'] or 0
+        home_wins = home_matches.filter(score_home__gt=F('score_away')).count()
+        home_draws = home_matches.filter(score_home=F('score_away')).count()
+        home_losses = home_matches.filter(score_home__lt=F('score_away')).count()
+        
+        # Away matches
+        away_matches = matches.filter(team_away=team)
+        away_goals = away_matches.aggregate(total=Sum('score_away'))['total'] or 0
+        away_wins = away_matches.filter(score_away__gt=F('score_home')).count()
+        away_draws = away_matches.filter(score_away=F('score_home')).count()
+        away_losses = away_matches.filter(score_away__lt=F('score_home')).count()
+        
+        # Combined statistics
+        team_stats[team.team_name] = {
+            'team': team,
+            'matches_played': home_matches.count() + away_matches.count(),
+            'goals_scored': home_goals + away_goals,
+            'wins': home_wins + away_wins,
+            'draws': home_draws + away_draws,
+            'losses': home_losses + away_losses,
+            'points': (home_wins + away_wins) * 3 + (home_draws + away_draws)
+        }
+    
+    # Sort teams by points
+    sorted_teams = sorted(team_stats.items(), key=lambda x: x[1]['points'], reverse=True)
+    
+    # League statistics
+    league_stats = {}
+    for match in matches:
+        league_name = match.day.league_season.league.league_name
+        if league_name not in league_stats:
+            league_stats[league_name] = {
+                'matches': 0,
+                'goals': 0,
+                'avg_goals_per_match': 0
+            }
+        league_stats[league_name]['matches'] += 1
+        league_stats[league_name]['goals'] += match.score_home + match.score_away
+    
+    # Calculate averages
+    for league_name, stats in league_stats.items():
+        if stats['matches'] > 0:
+            stats['avg_goals_per_match'] = round(stats['goals'] / stats['matches'], 2)
+    
+    # Monthly goal trends
+    monthly_goals = {}
+    for match in matches:
+        month_key = match.match_date.strftime('%Y-%m')
+        if month_key not in monthly_goals:
+            monthly_goals[month_key] = 0
+        monthly_goals[month_key] += match.score_home + match.score_away
+    
+    # Sort monthly data
+    sorted_monthly = sorted(monthly_goals.items())
+    
+    # Get filter options
+    leagues = League.objects.all().order_by('league_name')
+    seasons = Season.objects.all().order_by('-start_date')
+    
+    context = {
+        'page_title': 'Statistics Dashboard',
+        'team_stats': sorted_teams,
+        'league_stats': league_stats,
+        'monthly_goals': sorted_monthly,
+        'leagues': leagues,
+        'seasons': seasons,
+        'selected_league': league_id,
+        'selected_season': season_id,
+        'selected_date_from': date_from,
+        'selected_date_to': date_to,
+        'total_matches': matches.count(),
+        'total_goals': matches.aggregate(total=Sum('score_home') + Sum('score_away'))['total'] or 0,
+    }
+    
+    return render(request, 'statistics.html', context)
+
+
+def statistics_api(request):
+    """
+    API endpoint for chart data
+    """
+    # Get filter parameters
+    league_id = request.GET.get('league', '')
+    season_id = request.GET.get('season', '')
+    
+    # Base queryset
+    matches = Match.objects.select_related(
+        'team_home', 'team_away', 'day__league_season__league', 'day__league_season__season'
+    ).filter(score_home__isnull=False, score_away__isnull=False)
+    
+    # Apply filters
+    if league_id:
+        matches = matches.filter(day__league_season__league__id=league_id)
+    if season_id:
+        matches = matches.filter(day__league_season__season__id=season_id)
+    
+    # Team goals data for chart
+    team_goals = {}
+    teams = set()
+    
+    for match in matches:
+        teams.add(match.team_home)
+        teams.add(match.team_away)
+    
+    for team in teams:
+        home_goals = matches.filter(team_home=team).aggregate(total=Sum('score_home'))['total'] or 0
+        away_goals = matches.filter(team_away=team).aggregate(total=Sum('score_away'))['total'] or 0
+        team_goals[team.team_name] = home_goals + away_goals
+    
+    # Sort by goals
+    sorted_team_goals = sorted(team_goals.items(), key=lambda x: x[1], reverse=True)
+    
+    # Monthly goals for line chart
+    monthly_goals = {}
+    for match in matches:
+        month_key = match.match_date.strftime('%Y-%m')
+        if month_key not in monthly_goals:
+            monthly_goals[month_key] = 0
+        monthly_goals[month_key] += match.score_home + match.score_away
+    
+    return JsonResponse({
+        'team_goals': sorted_team_goals,
+        'monthly_goals': sorted(monthly_goals.items())
+    })
