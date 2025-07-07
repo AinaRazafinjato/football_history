@@ -15,7 +15,7 @@
         
         <!-- Content that collapses on mobile -->
         <div class="collapse navbar-collapse" id="navbarSearch">
-            <form class="d-flex align-items-center ms-auto mt-2 mt-lg-0" role="search">
+            <form class="d-flex align-items-center ms-auto mt-2 mt-lg-0" role="search" method="GET" action="{% url 'search_matches' %}">
                 <div class="position-relative w-100">
                     <!-- Integrated search icon -->
                     <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-light opacity-75"></i>
@@ -24,6 +24,7 @@
                     <input 
                         class="form-control ps-5 pe-4 py-2 border-accent bg-dark-20 text-light" 
                         type="search" 
+                        name="q"
                         placeholder="Search for a match, team..."
                         style="
                             border-radius: 25px;

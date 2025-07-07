@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}Search Results - Football History{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{% url 'search_matches' %}" id="filterForm">
+                        <!-- Search Query -->
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="q" value="{{ query }}" placeholder="Team, league...">
+                        </div>
+
+                        <!-- Year Filter -->
+                        <div class="mb-3">
+                            <label for="year" class="form-label">Year</label>
+                            <select class="form-select" id="year" name="year">
+                                <option value="">All years</option>
+                                {% for year_option in years %}
+                                    <option value="{{ year_option }}" {% if year_option|stringformat:"s" == selected_year %}selected{% endif %}>
+                                        {{ year_option }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Team Filter -->
+                        <div class="mb-3">
+                            <label for="team" class="form-label">Team</label>
+                            <select class="form-select" id="team" name="team">
+                                <option value="">All teams</option>
+                                {% for team_option in teams %}
+                                    <option value="{{ team_option.id }}" {% if team_option.id|stringformat:"s" == selected_team %}selected{% endif %}>
+                                        {{ team_option.team_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- League Filter -->
+                        <div class="mb-3">
+                            <label for="league" class="form-label">League</label>
+                            <select class="form-select" id="league" name="league">
+                                <option value="">All leagues</option>
+                                {% for league_option in leagues %}
+                                    <option value="{{ league_option.id }}" {% if league_option.id|stringformat:"s" == selected_league %}selected{% endif %}>
+                                        {{ league_option.league_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                            <a href="{% url 'search_matches' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Clear
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="col-md-9">
+            <!-- Results Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>Search Results</h2>
+                    <p class="text-muted">
+                        {% if query %}
+                            {{ total_results }} result{{ total_results|pluralize }} for "{{ query }}"
+                        {% else %}
+                            {{ total_results }} match{{ total_results|pluralize }} found
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Matches Results -->
+            <div class="matches-container">
+                {% if matches %}
+                    {% for match in matches %}
+                    <div class="card my-3 shadow-sm match-card">
+                        <div class="card-body p-3">
+                            <div class="row align-items-center">
+                                <!-- Date/League Info -->
+                                <div class="col-md-3 text-center text-md-start">
+                                    <div class="mb-1">
+                                        <small class="text-muted">{{ match.match_date|date:"j F Y" }}</small>
+                                    </div>
+                                    <div class="mb-1">
+                                        <small class="text-primary fw-bold">{{ match.day.league_season.league.league_name }}</small>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">
+                                            {% if match.score_home is not None and match.score_away is not None %}
+                                                FT
+                                            {% else %}
+                                                {{ match.time|time:"H:i" }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Teams -->
+                                <div class="col-md-6">
+                                    <div class="d-flex flex-column gap-2">
+                                        <!-- Home -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% if match.team_home.logo %}
+                                                <img src="{% static 'logos/' %}{{ match.team_home.logo }}" 
+                                                     alt="{{ match.team_home }}"
+                                                     class="img-fluid team-logo" 
+                                                     style="width: 24px;">
+                                                {% endif %}
+                                                <span class="team-name {{ 'home'|winner_class:match }}">{{ match.team_home }}</span>
+                                            </div>
+                                            <span class="fw-bold">
+                                                {% if match.score_home is not None %}
+                                                    {{ match.score_home }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <!-- Away -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% if match.team_away.logo %}
+                                                <img src="{% static 'logos/' %}{{ match.team_away.logo }}" 
+                                                     alt="{{ match.team_away }}"
+                                                     class="img-fluid team-logo" 
+                                                     style="width: 24px;">
+                                                {% endif %}
+                                                <span class="team-name {{ 'away'|winner_class:match }}">{{ match.team_away }}</span>
+                                            </div>
+                                            <span class="fw-bold">
+                                                {% if match.score_away is not None %}
+                                                    {{ match.score_away }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stats/Details link -->
+                                <div class="col-md-3 text-end">
+                                    <small class="text-muted d-block">{{ match.day.league_season.season.season_name }}</small>
+                                    <a href="#" class="btn btn-sm btn-light mt-1">
+                                        <i class="fas fa-chart-bar"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Pagination -->
+                    {% if matches.has_other_pages %}
+                    <nav aria-label="Search results pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if matches.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}{% if selected_team %}team={{ selected_team }}&{% endif %}{% if selected_league %}league={{ selected_league }}&{% endif %}page={{ matches.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in matches.paginator.page_range %}
+                                {% if matches.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > matches.number|add:'-3' and num < matches.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}{% if selected_team %}team={{ selected_team }}&{% endif %}{% if selected_league %}league={{ selected_league }}&{% endif %}page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if matches.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}{% if selected_team %}team={{ selected_team }}&{% endif %}{% if selected_league %}league={{ selected_league }}&{% endif %}page={{ matches.next_page_number }}">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-search me-2"></i>No matches found</h5>
+                        <p class="mb-0">Try adjusting your search criteria or clearing the filters.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for dynamic filtering -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('filterForm');
+    const filters = filterForm.querySelectorAll('select, input');
+    
+    // Auto-submit on filter change for dynamic results
+    filters.forEach(filter => {
+        filter.addEventListener('change', function() {
+            filterForm.submit();
+        });
+    });
+    
+    // Handle search input with debounce
+    const searchInput = document.getElementById('search');
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            if (this.value.length >= 2 || this.value.length === 0) {
+                filterForm.submit();
+            }
+        }, 500); // 500ms debounce
+    });
+});
+</script>
+
+{% endblock %}
