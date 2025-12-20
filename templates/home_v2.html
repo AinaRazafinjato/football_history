@@ -15,10 +15,13 @@
                 <!-- Meilleur alignement logo + nom de ligue -->
                 <div class="d-flex align-items-center">
                     <div class="me-3">
-                        <img src="{% static 'logos/' %}{{ league.logo }}" 
-                             alt="{{ league.league_name }}"
-                             class="img-fluid" 
-                             style="max-width: 48px;">
+                        {% if league.logo %}
+                            {% logo_url league.logo as league_logo %}
+                            <img src="{{ league_logo }}" 
+                                alt="{{ league.league_name }}"
+                                class="img-fluid" 
+                                style="max-width: 48px;">
+                        {% endif %}
                     </div>
                     <div>
                         <span class="text-muted small d-block">{{ league.country }}</span>
@@ -58,12 +61,13 @@
                                         <!-- Home -->
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="d-flex align-items-center gap-2">
-                                                {% if match.team_home.logo %}
-                                                <img src="{% static 'logos/' %}{{ match.team_home.logo }}" 
-                                                     alt="{{ match.team_home }}"
-                                                     class="img-fluid team-logo" 
-                                                     style="width: 24px;">
-                                                {% endif %}
+                                                   {% if match.team_home.logo %}
+                                                   {% logo_url match.team_home.logo as team_home_logo %}
+                                                   <img src="{{ team_home_logo }}" 
+                                                       alt="{{ match.team_home }}"
+                                                       class="img-fluid team-logo" 
+                                                       style="width: 24px;">
+                                                   {% endif %}
                                                 <span class="team-name d-none d-lg-inline {{ 'home'|winner_class:match }}">{{ match.team_home }}</span>
                                                 <span class="team-name d-inline d-lg-none {{ 'home'|winner_class:match }}" title="{{ match.team_home }}">{{ match.team_home|ajust_team_name }}</span>
                                             </div>
@@ -79,12 +83,13 @@
                                         <!-- Away -->
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="d-flex align-items-center gap-2">
-                                                {% if match.team_away.logo %}
-                                                <img src="{% static 'logos/' %}{{ match.team_away.logo }}" 
-                                                     alt="{{ match.team_away }}"
-                                                     class="img-fluid team-logo" 
-                                                     style="width: 24px;">
-                                                {% endif %}
+                                                   {% if match.team_away.logo %}
+                                                   {% logo_url match.team_away.logo as team_away_logo %}
+                                                   <img src="{{ team_away_logo }}" 
+                                                       alt="{{ match.team_away }}"
+                                                       class="img-fluid team-logo" 
+                                                       style="width: 24px;">
+                                                   {% endif %}
                                                 <span class="team-name d-none d-lg-inline {{ 'away'|winner_class:match }}">{{ match.team_away }}</span>
                                                 <span class="team-name d-inline d-lg-none {{ 'away'|winner_class:match }}" title="{{ match.team_away }}">{{ match.team_away|ajust_team_name }}</span>
                                             </div>

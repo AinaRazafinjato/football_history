@@ -1,8 +1,44 @@
 from django import template
 from .constants import TEAM_SHORTCUTS
 from datetime import datetime, timedelta
+from django.conf import settings
+from django.templatetags.static import static
+from django.contrib.staticfiles.storage import staticfiles_storage
+import os
 
 register = template.Library()
+
+
+@register.simple_tag(takes_context=True)
+def logo_url(context, logo):
+    """Return a URL for a logo that prefers MEDIA then static files.
+
+    Usage in template:
+      {% logo_url match.team_home.logo as home_logo %}
+      <img src="{{ home_logo }}">
+    """
+    name = None
+    if not logo:
+        return ''
+    # FieldFile or string
+    name = getattr(logo, 'name', logo)
+    if not name:
+        return ''
+
+    # prefer MEDIA if file exists there
+    media_path = os.path.join(settings.MEDIA_ROOT, name)
+    if os.path.exists(media_path):
+        url = settings.MEDIA_URL + name.replace(os.path.sep, '/')
+    else:
+        try:
+            url = staticfiles_storage.url(name)
+        except Exception:
+            url = static(name)
+
+    request = context.get('request')
+    if request:
+        return request.build_absolute_uri(url)
+    return url
 
 @register.filter
 def ajust_team_name(team):
