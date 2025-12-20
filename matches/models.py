@@ -98,7 +98,7 @@ class MatchDay(models.Model):
     
     @property
     def season(self):
-        return self.league_season.season
+        return self.league_season.season if self.league_season else None
     
     def __str__(self):
         league_season_str = f" - {self.league_season}" if self.league_season else ""
