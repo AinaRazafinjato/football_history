@@ -8,6 +8,7 @@ __pycache__/
 # Configuration locale Django
 *.sqlite3
 .env
+.Venv/
 
 # Logs et cache
 logs/
