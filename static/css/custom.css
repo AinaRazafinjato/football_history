@@ -265,13 +265,8 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
         font-size: 1.25rem;
     }
     
-    .col-2 {
-        width: 25%; /* Élargir la colonne de date sur mobile */
-    }
-    
-    .col-8 {
-        width: 75%; /* Ajuster la largeur des équipes */
-    }
+    /* Avoid overriding Bootstrap column classes here; use custom helpers instead */
+    /* .col-2 and .col-8 rules removed to prevent conflicts with Bootstrap grid */
     
     .back-to-top {
         bottom: 15px;

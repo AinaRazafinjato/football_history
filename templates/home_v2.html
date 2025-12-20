@@ -34,11 +34,11 @@
             <div class="matches-container pt-2">
                 {% if matches %}
                     {% for match in matches %}
-                    <div class="card my-3 shadow-sm match-card">
+                    <div class="card my-3 shadow-sm match-card" data-match-date="{{ match.match_date|date:'Y-m-d' }}">
                         <div class="card-body p-3">
                             <div class="row align-items-center">
                                 <!-- Date/Time -->
-                                <div class="col-date text-center">
+                                <div class="col-12 col-md-2 text-center col-date">
                                     <!-- Format normal pour les écrans medium et au-delà - Remplacer par un format qui fonctionne correctement -->
                                     <small class="text-muted d-none d-md-block">{{ match.match_date|date:"j F Y" }}</small>
                                     <!-- Format compact pour mobile utilisant les filtres Django existants -->
@@ -53,7 +53,7 @@
                                 </div>
 
                                 <!-- Teams -->
-                                <div class="col-teams">
+                                <div class="col-12 col-md-8 col-teams">
                                     <div class="d-flex flex-column gap-2">
                                         <!-- Home -->
                                         <div class="d-flex justify-content-between align-items-center">
@@ -101,7 +101,7 @@
                                 </div>
                                 
                                 <!-- Stats/Details link -->
-                                <div class="col-stats text-end">
+                                <div class="col-12 col-md-2 text-end col-stats">
                                     <a href="{% url 'statistics' %}" class="btn btn-sm btn-light" title="View Statistics">
                                         <i class="fas fa-chart-bar"></i>
                                     </a>
@@ -180,21 +180,26 @@
         }
 
         // Défilement automatique vers le premier match de la semaine actuelle
-        const today = new Date();
         const cards = document.querySelectorAll('.match-card');
-        let foundCurrentWeek = false;
-        
-        // Parcourir tous les matchs pour trouver le premier de la semaine actuelle
+        const weekStart = new Date('{{ current_week_start|date:"Y-m-d" }}');
+        const weekEnd = new Date('{{ current_week_end|date:"Y-m-d" }}');
+
         for (let i = 0; i < cards.length; i++) {
-            const dateText = cards[i].querySelector('.col-date small:first-child').textContent;
-            const matchDate = new Date(dateText.replace(/(\d+)\/(\d+)/, '$2/$1/' + today.getFullYear()));
-            
-            // Si la date est dans la semaine actuelle
-            if (matchDate >= new Date('{{ current_week_start|date:"Y-m-d" }}') && 
-                matchDate <= new Date('{{ current_week_end|date:"Y-m-d" }}')) {
-                // Faire défiler jusqu'à cette carte
-                cards[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                foundCurrentWeek = true;
+            // Lire la date ISO depuis l'attribut data-match-date pour un parsing fiable
+            const iso = cards[i].getAttribute('data-match-date');
+            if (!iso) continue;
+            const matchDate = new Date(iso + 'T00:00:00');
+
+            if (matchDate >= weekStart && matchDate <= weekEnd) {
+                // Déterminer la cible de scroll : container scroller ou window
+                const container = document.querySelector('.matches-container');
+                if (container && container.scrollHeight > container.clientHeight) {
+                    // Scroll dans le container
+                    cards[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    // Scroll sur la fenêtre
+                    window.scrollTo({ top: cards[i].getBoundingClientRect().top + window.scrollY - (window.innerHeight / 2), behavior: 'smooth' });
+                }
                 break;
             }
         }

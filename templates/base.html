@@ -9,8 +9,8 @@
     <!-- Titre Dynamique -->
     <title>{% block title %}Football History{% endblock %}</title>
     
-    <!-- Bootstrap CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUa/9ktNBdTUrj4pLCK6B6kG0t7V2JjbV9uEXoqxvzeFVr8NuVGV0WtNfKYM" crossorigin="anonymous">
+    <!-- Bootstrap CSS (local copy to avoid CDN integrity / tracking issues) -->
+    <link rel="stylesheet" href="{% static 'vendors/bootstrap/css/bootstrap.min.css' %}">
     
     <!-- CSS Personnalisé -->
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome removed (use local icons or add local copy if needed) -->
 </head>
 <body>
     <!-- Header (Navbar) -->
@@ -32,6 +32,9 @@
 
     <!-- Footer -->
     {% include 'partials/footer.html' %}
+
+    <!-- Favicon (use existing league logo as placeholder) -->
+    <link rel="icon" href="{% static 'logos/leagues/Premier League.png' %}" type="image/png">
 
     <!-- Scripts Bootstrap CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
