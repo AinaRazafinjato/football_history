@@ -4,7 +4,7 @@ from django.templatetags.static import static
 from django.contrib.staticfiles.storage import staticfiles_storage
 import os
 
-from .models import Team, League
+from .models import Team, League, MatchDay, Match
 
 
 def _build_file_url(name, request=None):
@@ -58,3 +58,35 @@ class TeamSerializer(serializers.ModelSerializer):
         if not obj.logo:
             return None
         return _build_file_url(obj.logo.name, request=request)
+
+class MatchDaySerializer(serializers.ModelSerializer):
+    season = serializers.SerializerMethodField()
+    league = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = MatchDay
+        fields = ['day_number', 'day_date', 'season', 'league']
+    def get_season(self, obj):
+        return obj.season.season_name if obj.season else None
+    def get_league(self, obj):
+        return obj.league_season.league.league_name if obj.league_season and obj.league_season.league else None
+
+
+class MatchSerializer(serializers.ModelSerializer):
+    team_home = TeamSerializer(read_only=True)
+    team_away = TeamSerializer(read_only=True)
+    day = MatchDaySerializer(read_only=True)
+    class Meta:
+        model = Match
+        fields = [
+            'id',
+            'match_date',
+            'time',
+            'team_home',
+            'team_away',
+            'score_home',
+            'score_away',
+            'xG_home',
+            'xG_away',
+            'day',
+        ]
