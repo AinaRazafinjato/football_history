@@ -80,3 +80,73 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
             })
 
         return Response({'data': results})
+    
+    @action(detail=False, methods=['get'], url_path='total_goals_home')
+    def total_goals_home(self, request):
+        """
+        Retourne JSON listant pour chaque équipe :
+        - gp : matches joués à domicile
+        - over_1_5 : matches où l'équipe a marqué > 1.5 buts à domicile
+        - pct : pourcentage over_1_5 / gp * 100
+        Filtrable via les mêmes query params que MatchViewSet (league, season, match_date_after/before, etc).
+        """
+        # apply DRF filters (filterset/search/ordering) first
+        matches_qs = self.filter_queryset(self.get_queryset()).filter(
+            score_home__isnull=False, score_away__isnull=False
+        )
+
+        teams = Team.objects.all().order_by('team_name')
+        results = []
+
+        for team in teams:
+            gp_home = matches_qs.filter(team_home=team).count()
+            gp = gp_home
+
+            over_home = matches_qs.filter(team_home=team, score_home__gt=1.5).count()
+            over = over_home
+            pct = round((over / gp) * 100, 2) if gp > 0 else 0.0
+
+            results.append({
+                'team_id': team.id,
+                'team_name': team.team_name,
+                'gp': gp,
+                'over_1_5': over,
+                'pct': pct,
+            })
+
+        return Response({'data': results})
+    
+    @action(detail=False, methods=['get'], url_path='total_goals_away')
+    def total_goals_away(self, request):
+        """
+        Retourne JSON listant pour chaque équipe :
+        - gp : matches joués à l'extérieur
+        - over_1_5 : matches où l'équipe a marqué > 1.5 buts à l'extérieur
+        - pct : pourcentage over_1_5 / gp * 100
+        Filtrable via les mêmes query params que MatchViewSet (league, season, match_date_after/before, etc).
+        """
+        # apply DRF filters (filterset/search/ordering) first
+        matches_qs = self.filter_queryset(self.get_queryset()).filter(
+            score_home__isnull=False, score_away__isnull=False
+        )
+
+        teams = Team.objects.all().order_by('team_name')
+        results = []
+
+        for team in teams:
+            gp_away = matches_qs.filter(team_away=team).count()
+            gp = gp_away
+
+            over_away = matches_qs.filter(team_away=team, score_away__gt=1.5).count()
+            over = over_away
+            pct = round((over / gp) * 100, 2) if gp > 0 else 0.0
+
+            results.append({
+                'team_id': team.id,
+                'team_name': team.team_name,
+                'gp': gp,
+                'over_1_5': over,
+                'pct': pct,
+            })
+
+        return Response({'data': results})
