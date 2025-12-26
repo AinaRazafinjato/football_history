@@ -11,6 +11,8 @@ router.register(r'matches', MatchViewSet, basename='match')
 
 # URL patterns for the matches app
 # 'total_goals' endpoint is handled in MatchViewSet as a custom action
+# 'total_goals_home' endpoint is handled in MatchViewSet as a custom action
+# 'total_goals_away' endpoint is handled in MatchViewSet as a custom action
 
 urlpatterns = [
     path('v1/', views.home_v1, name='home_v1'),
